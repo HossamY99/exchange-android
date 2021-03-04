@@ -1,27 +1,87 @@
 package com.hossam.currencyexchange
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.widget.TextView
 //import com.hossam.currencyexchange.api.retrofit
+
+//import android.R
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputLayout
 import com.hossam.currencyexchange.api.ExchangeService
 import com.hossam.currencyexchange.api.model.ExchangeRates
-import android.util.Log
-import org.json.JSONObject
+import com.hossam.currencyexchange.api.model.Transaction
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+
 class MainActivity : AppCompatActivity() {
     private var buyUsdTextView: TextView? = null
     private var sellUsdTextView: TextView? = null
+    private var fab: FloatingActionButton? = null
+    private var transactionDialog: View? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         buyUsdTextView = findViewById(R.id.txtBuyUsdRate)
         sellUsdTextView = findViewById(R.id.txtSellUsdRate)
-        //val d = Log.d("TAG", "here")
-       // println("here")
+
+        fab = findViewById(R.id.fab)
+        fab?.setOnClickListener { view ->
+            showDialog()
+        }
+
+        fetchRates()
+
+
+    }
+
+
+    private fun showDialog() {
+        transactionDialog = LayoutInflater.from(this)
+                .inflate(R.layout.dialog_transaction, null, false)
+        MaterialAlertDialogBuilder(this).setView(transactionDialog)
+                .setTitle("Add Transaction")
+                .setMessage("Enter transaction details")
+                .setPositiveButton("Add") { dialog, _ ->
+                    val usdAmount = transactionDialog?.findViewById<TextInputLayout>(R.id.txtInptUsdAmount)?.editText?.text.toString().toFloat()
+
+
+                    val lbpAmount = transactionDialog?.findViewById<TextInputLayout>(R.id.txtInptLbpAmount)?.editText?.text.toString().toFloat()
+                    Log.d("TAG", "I'm here $usdAmount")
+                    //print("here $usdAmount")
+                    val radioGroup = transactionDialog?.findViewById<View>(R.id.rdGrpTransactionType) as RadioGroup
+
+                    var tr= Transaction()
+                    tr.usdAmount=usdAmount
+                    tr.lbpAmount=lbpAmount
+                   if(radioGroup.checkedRadioButtonId == transactionDialog?.findViewById<RadioButton>(R.id.rdBtnBuyUsd)?.id) {
+                      println("u chose usd")
+                       tr.usdToLbp=false
+                    }
+                    else if (radioGroup.checkedRadioButtonId == transactionDialog?.findViewById<RadioButton>(R.id.rdBtnSellUsd)?.id) {
+                       tr.usdToLbp=true
+                   }
+
+                    addTransaction(tr)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->dialog.dismiss()
+                }
+                .show()
+
+    }
+
+    private fun fetchRates(){
+
         ExchangeService.exchangeApi().getExchangeRates().enqueue(object :
                 Callback<ExchangeRates> {
             override fun onResponse(call: Call<ExchangeRates>, response:
@@ -32,10 +92,9 @@ class MainActivity : AppCompatActivity() {
 
                 println("response:")
 
-                //val editText = findViewById<EditText>(R.id.editText_id)
-                //val editTextValue = editText.text
-                buyUsdTextView?.text="${(responseBody?.usdToLbp).toString()}"
-                sellUsdTextView?.text="${(responseBody?.lbpToUsd).toString()}"
+
+                buyUsdTextView?.text="${(responseBody?.lbpToUsd).toString()}"
+                sellUsdTextView?.text="${(responseBody?.usdToLbp).toString()}"
                 //Log.d("TAG", ${responseBody.toString()})
 
             }
@@ -46,5 +105,30 @@ class MainActivity : AppCompatActivity() {
 
             }
         })
+
+
     }
+
+
+
+    private fun addTransaction(transaction: Transaction) {
+
+        ExchangeService.exchangeApi().addTransaction(transaction).enqueue(object :
+                Callback<Any> {
+            override fun onResponse(call: Call<Any>, response:
+            Response<Any>) {
+                Snackbar.make(fab as View, "Transaction added!",
+                        Snackbar.LENGTH_LONG)
+                        .show()
+                        fetchRates()
+            }
+            override fun onFailure(call: Call<Any>, t: Throwable) {
+                Snackbar.make(fab as View, "Could not add transaction.",
+                        Snackbar.LENGTH_LONG)
+                        .show()
+            }
+        })
+    }
+
+
 }
