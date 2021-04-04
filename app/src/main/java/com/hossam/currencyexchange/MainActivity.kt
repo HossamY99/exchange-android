@@ -3,9 +3,12 @@ package com.hossam.currencyexchange
 //import com.hossam.currencyexchange.api.retrofit
 
 //import android.R
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -15,6 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import com.hossam.currencyexchange.api.Authentication
 import com.hossam.currencyexchange.api.ExchangeService
 import com.hossam.currencyexchange.api.model.ExchangeRates
 import com.hossam.currencyexchange.api.model.Transaction
@@ -28,8 +32,10 @@ class MainActivity : AppCompatActivity() {
     private var sellUsdTextView: TextView? = null
     private var fab: FloatingActionButton? = null
     private var transactionDialog: View? = null
+    private var menu: Menu? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Authentication.initialize(this)
         setContentView(R.layout.activity_main)
         buyUsdTextView = findViewById(R.id.txtBuyUsdRate)
         sellUsdTextView = findViewById(R.id.txtSellUsdRate)
@@ -45,6 +51,36 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        this.menu = menu
+        setMenu()
+        return true
+    }
+    private fun setMenu() {
+        menu?.clear()
+        menuInflater.inflate(if(Authentication.getToken() == null)
+            R.menu.menu_logged_out else R.menu.menu_logged_in, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.login) {
+            print("im herefrommain")
+            Log.d("TAG2", "login")
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        } else if (item.itemId == R.id.register) {
+            val intent = Intent(this, RegistrationActivity::class.java)
+            startActivity(intent)
+        } else if (item.itemId == R.id.logout) {
+            Authentication.clearToken()
+            setMenu()
+        }
+        return true
+    }
+
+
+
+
     private fun showDialog() {
         transactionDialog = LayoutInflater.from(this)
                 .inflate(R.layout.dialog_transaction, null, false)
@@ -56,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
 
                     val lbpAmount = transactionDialog?.findViewById<TextInputLayout>(R.id.txtInptLbpAmount)?.editText?.text.toString().toFloat()
-                    Log.d("TAG", "I'm here $usdAmount")
+                   // Log.d("TAG", "I'm here $usdAmount")
                     //print("here $usdAmount")
                     val radioGroup = transactionDialog?.findViewById<View>(R.id.rdGrpTransactionType) as RadioGroup
 
@@ -88,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             Response<ExchangeRates>) {
 
                 val responseBody: ExchangeRates? = response.body();
-                Log.d("TAG", "I'm here ${response?.toString()}")
+               // Log.d("TAG", "I'm here ${response?.toString()}")
 
                 println("response:")
 
