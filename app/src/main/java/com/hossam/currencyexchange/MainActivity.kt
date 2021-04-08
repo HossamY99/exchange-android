@@ -14,9 +14,12 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.TextInputLayout
 import com.hossam.currencyexchange.api.Authentication
 import com.hossam.currencyexchange.api.ExchangeService
@@ -33,6 +36,9 @@ class MainActivity : AppCompatActivity() {
     private var fab: FloatingActionButton? = null
     private var transactionDialog: View? = null
     private var menu: Menu? = null
+    private var tabLayout: TabLayout? = null
+    private var tabsViewPager: ViewPager2? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Authentication.initialize(this)
@@ -40,12 +46,32 @@ class MainActivity : AppCompatActivity() {
         buyUsdTextView = findViewById(R.id.txtBuyUsdRate)
         sellUsdTextView = findViewById(R.id.txtSellUsdRate)
 
+        tabLayout = findViewById(R.id.tabLayout)
+        tabsViewPager = findViewById(R.id.tabsViewPager)
+        tabLayout?.tabMode = TabLayout.MODE_FIXED
+        tabLayout?.isInlineLabel = true
+        // Enable Swipe
+        tabsViewPager?.isUserInputEnabled = true
+        // Set the ViewPager Adapter
+        val adapter = TabsPagerAdapter(supportFragmentManager, lifecycle)
+        tabsViewPager?.adapter = adapter
+        TabLayoutMediator(tabLayout!!, tabsViewPager!!) { tab, position ->
+            when (position) {
+                0 -> {
+                    tab.text = "Exchange"
+                }
+                1 -> {
+                    tab.text = "Transactions"
+                }
+            }
+        }.attach()
+
+
         fab = findViewById(R.id.fab)
         fab?.setOnClickListener { view ->
             showDialog()
         }
 
-        fetchRates()
 
 
     }
@@ -116,34 +142,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun fetchRates(){
-
-        ExchangeService.exchangeApi().getExchangeRates().enqueue(object :
-                Callback<ExchangeRates> {
-            override fun onResponse(call: Call<ExchangeRates>, response:
-            Response<ExchangeRates>) {
-
-                val responseBody: ExchangeRates? = response.body();
-               // Log.d("TAG", "I'm here ${response?.toString()}")
-
-                println("response:")
-
-
-                buyUsdTextView?.text="${(responseBody?.lbpToUsd).toString()}"
-                sellUsdTextView?.text="${(responseBody?.usdToLbp).toString()}"
-                //Log.d("TAG", ${responseBody.toString()})
-
-            }
-            override fun onFailure(call: Call<ExchangeRates>, t: Throwable) {
-                Log.d("TAG", "did not work")
-                return;
-                TODO("Not yet implemented")
-
-            }
-        })
-
-
-    }
 
 
 
@@ -156,7 +154,7 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(fab as View, "Transaction added!",
                         Snackbar.LENGTH_LONG)
                         .show()
-                        fetchRates()
+                        //fetchRates()
             }
             override fun onFailure(call: Call<Any>, t: Throwable) {
                 Snackbar.make(fab as View, "Could not add transaction.",
