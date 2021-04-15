@@ -1,5 +1,6 @@
 package com.hossam.currencyexchange.api.model
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 
 class Transaction {
@@ -11,6 +12,14 @@ class Transaction {
         var lbpAmount: Float? = null
         @SerializedName("usd_to_lbp")
         var usdToLbp: Boolean? = null
+
+        @SerializedName("id")
+        var id: Int? = null
+
+        @SerializedName("added_date")
+        var added_date: Date? = null
+
+
 
 
 
