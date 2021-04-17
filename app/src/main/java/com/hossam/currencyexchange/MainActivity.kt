@@ -134,6 +134,7 @@ class MainActivity : AppCompatActivity() {
                    }
 
                     addTransaction(tr)
+
                     dialog.dismiss()
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->dialog.dismiss()
@@ -147,11 +148,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun addTransaction(transaction: Transaction) {
 
-        ExchangeService.exchangeApi().addTransaction(
-            transaction,
-            if (Authentication.getToken() != null)
-                "Bearer${Authentication.getToken()}"
-        else null
+
+
+        ExchangeService.exchangeApi().addTransaction(transaction,
+            if (Authentication.getToken() != null){
+                "Bearer ${Authentication.getToken()}"}
+        else {null}
         ).enqueue(object : Callback<Any>
         {
         override fun onResponse(call: Call<Any>, response:
@@ -159,6 +161,7 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(fab as View, "Transaction added!",
                         Snackbar.LENGTH_LONG)
                         .show()
+
                         //fetchRates()
             }
             override fun onFailure(call: Call<Any>, t: Throwable) {

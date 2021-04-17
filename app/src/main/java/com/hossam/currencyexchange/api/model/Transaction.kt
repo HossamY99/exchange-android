@@ -17,8 +17,27 @@ class Transaction {
         var id: Int? = null
 
         @SerializedName("added_date")
-        var added_date: Date? = null
+        var added_date: String? = null
 
+        fun setusdAmount(usdAmount: Float?) {
+                this.usdAmount = usdAmount
+        }
+
+        fun setlbpAmount(lbpAmount: Float?) {
+                this.lbpAmount = lbpAmount
+        }
+
+        fun setusdToLbp(usdToLbp: Boolean?) {
+                this.usdToLbp = usdToLbp
+        }
+
+        fun setid(id: Int?) {
+                this.id = id
+        }
+
+        fun setAddedDate(addedDate: String) {
+                added_date = addedDate
+        }
 
 
 

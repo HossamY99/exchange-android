@@ -57,8 +57,8 @@ class LoginActivity : AppCompatActivity() {
                             .show()
                       //  print("still")
                         //print ("response ${response.body().token}")
-                        var a=(response.body().toString())
-                        print("sometoken $a")
+                        //var a=(response.body().toString())
+                       // print("sometoken $a")
 
                         //val responseBody: Token? = response.body()
                         //print("here ${(response.get)}")

@@ -118,6 +118,14 @@ class TransactionsFragment : Fragment() {
             )
             view.findViewById<TextView>(R.id.txtView).text =
                 dataSource[position].id.toString()
+            view.findViewById<TextView>(R.id.txt2View).text =
+                dataSource[position].added_date.toString()
+            view.findViewById<TextView>(R.id.txt3View).text =
+                dataSource[position].lbpAmount.toString()
+            view.findViewById<TextView>(R.id.txt4View).text =
+                dataSource[position].usdAmount.toString()
+            view.findViewById<TextView>(R.id.txt5View).text =
+                 dataSource[position].usdToLbp.toString()
             return view
         }
 

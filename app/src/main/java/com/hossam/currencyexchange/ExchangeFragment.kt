@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+//import android.widget.TextView
 import com.hossam.currencyexchange.api.ExchangeService
 import com.hossam.currencyexchange.api.model.ExchangeRates
 import retrofit2.Call
@@ -45,7 +46,7 @@ class ExchangeFragment : Fragment() {
         buyUsdTextView = view.findViewById(R.id.txtBuyUsdRate)
         sellUsdTextView = view.findViewById(R.id.txtSellUsdRate)
 
-
+        fetchRates()
         return view }
 
 
